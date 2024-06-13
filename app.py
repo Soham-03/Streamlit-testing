@@ -8,7 +8,7 @@ from langchain.chains.question_answering import load_qa_chain
 import google.generativeai as genai
 from langchain.prompts import PromptTemplate
 from dotenv import load_dotenv
-
+from pydantic import ValidationError
 
 load_dotenv()
 
