@@ -58,7 +58,7 @@ def get_conversational_chain():
 
 def user_input(user_question):
     try:
-    embeddings = GoogleGenerativeAIEmbeddings(model="models/embedding-001")
+        embeddings = GoogleGenerativeAIEmbeddings(model="models/embedding-001")
     except ValidationError as e:
         st.error(f"Validation error: {e}")
     # Optionally, log or print e to see detailed error messages
