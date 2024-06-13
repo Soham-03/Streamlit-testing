@@ -57,7 +57,12 @@ def get_conversational_chain():
 
 
 def user_input(user_question):
+    try:
     embeddings = GoogleGenerativeAIEmbeddings(model="models/embedding-001")
+    except ValidationError as e:
+        st.error(f"Validation error: {e}")
+    # Optionally, log or print e to see detailed error messages
+        print(e)
 
     new_db = FAISS.load_local("faiss_index", embeddings)
     docs = new_db.similarity_search(user_question)
