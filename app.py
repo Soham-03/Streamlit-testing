@@ -2,10 +2,10 @@ import streamlit as st
 from PyPDF2 import PdfReader
 from langchain.text_splitter import RecursiveCharacterTextSplitter
 from langchain_google_genai import GoogleGenerativeAIEmbeddings, ChatGoogleGenerativeAI
-from langchain.clients.quadrant import QuadrantClient
-from langchain.chains.question_answering import load_qa_chain
+from langchain_clients.quadrant import QuadrantClient
+from langchain_chains.question_answering import load_qa_chain
 import google.generativeai as genai
-from langchain.prompts import PromptTemplate
+from langchain_prompts import PromptTemplate
 from dotenv import load_dotenv
 import os
 
