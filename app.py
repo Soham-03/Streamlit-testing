@@ -1,7 +1,7 @@
 import streamlit as st
 from PyPDF2 import PdfReader
 from langchain_text_splitters import RecursiveCharacterTextSplitter
-from langchain_google_genai import GoogleGenerativeAIEmbeddings, ChatGoogleGenerativeAI
+from langchain_google_genai import GoogleGenerativeAIEmbeddings
 from dotenv import load_dotenv
 import os
 from qdrant_client import QdrantClient
@@ -37,7 +37,8 @@ def get_text_chunks(text):
     return chunks
 
 def store_embeddings_in_quadrant(text_chunks):
-    embeddings_generator = GoogleGenerativeAIEmbeddings(model="models/embedding-001")
+    # Initialize the embeddings generator with Google's Generative AI
+    embeddings_generator = GoogleGenerativeAIEmbeddings(api_key=GENAI_API_KEY, model="models/embedding-001")
     for chunk in text_chunks:
         embeddings = embeddings_generator.generate(chunk)
         # Store embeddings in Qdrant
