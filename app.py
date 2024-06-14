@@ -27,16 +27,9 @@ def get_chunks(text):
     return text_splitter.split_text(text)
 
 def get_vector_store(text_chunks):
-    embedding_model = GoogleGenerativeAIEmbeddings(model="models/embedding-001")
-    embeddings = [embedding_model.embed(chunk) for chunk in text_chunks if chunk.strip()]
-    
-    if not embeddings or not all(isinstance(e, np.ndarray) for e in embeddings):
-        st.error("Failed to generate valid embeddings. Check the embedding process.")
-        return
-    
-    vector_store = FAISS.from_texts(text_chunks, embeddings)
+    embeddings = GoogleGenerativeAIEmbeddings(model="models/embedding-001")
+    vector_store = FAISS.from_texts(texts=text_chunks, embedding=embeddings)
     vector_store.save_local("faiss_index")
-    st.success("FAISS index created successfully!")
 
 def get_conversational_chain():
     prompt_template = """
