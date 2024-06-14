@@ -11,9 +11,9 @@ from langchain.chains.question_answering import load_qa_chain
 from langchain.prompts import PromptTemplate
 from htmlTemplates import css, bot_template, user_template
 
-load_dotenv()
+load_dotenv() # Loads .env file
 
-genai.configure(api_key="AIzaSyAcODqO3muGpih3AISgU4Dr7hZfFm3GWqU")
+genai.configure(api_key=os.getenv("GOOGLE_API_KEY")) 
 
 def get_pdf_text(pdf_docs):
     text = ""
