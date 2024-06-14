@@ -1,20 +1,22 @@
 import streamlit as st
 from PyPDF2 import PdfReader
-from langchain.text_splitter import RecursiveCharacterTextSplitter
+from langchain_text_splitters import RecursiveCharacterTextSplitter
 from langchain_google_genai import GoogleGenerativeAIEmbeddings, ChatGoogleGenerativeAI
-from langchain_clients.quadrant import QuadrantClient
-from langchain_chains.question_answering import load_qa_chain
-import google.generativeai as genai
-from langchain_prompts import PromptTemplate
 from dotenv import load_dotenv
 import os
+from qdrant_client import QdrantClient
 
+# Load environment variables
 load_dotenv()
+GENAI_API_KEY = os.getenv("GOOGLE_API_KEY")
+QDRANT_URL = os.getenv("QDRANT_URL")
+QDRANT_API_KEY = os.getenv("QDRANT_API_KEY")
 
-genai.configure(api_key=os.getenv("GOOGLE_API_KEY"))
-
-# Initialize Quadrant client
-quadrant_client = QuadrantClient(api_key=os.getenv("QUADRANT_API_KEY"))
+# Initialize Qdrant client
+qdrant_client = QdrantClient(
+    url=QDRANT_URL,
+    api_key=QDRANT_API_KEY
+)
 
 def get_pdf_text(pdf_docs):
     text = ""
@@ -27,7 +29,10 @@ def get_pdf_text(pdf_docs):
     return text
 
 def get_text_chunks(text):
-    text_splitter = RecursiveCharacterTextSplitter(chunk_size=10000, chunk_overlap=1000)
+    text_splitter = RecursiveCharacterTextSplitter(
+        chunk_size=10000,
+        chunk_overlap=1000
+    )
     chunks = text_splitter.split_text(text)
     return chunks
 
@@ -35,37 +40,12 @@ def store_embeddings_in_quadrant(text_chunks):
     embeddings_generator = GoogleGenerativeAIEmbeddings(model="models/embedding-001")
     for chunk in text_chunks:
         embeddings = embeddings_generator.generate(chunk)
-        quadrant_client.insert_vector(vector=embeddings, metadata={"chunk": chunk})
-
-def user_query_processing(user_question):
-    embeddings_generator = GoogleGenerativeAIEmbeddings(model='models/embedding-001')
-    query_embedding = embeddings_generator.generate(user_question)
-    search_results = quadrant_client.search_vector(vector=query_embedding, top_k=3)
-
-    if search_results:
-        documents = [result.metadata['chunk'] for result in search_results]
-        chain = get_conversation_chain()
-        response = chain({"input_documents": documents, "question": user_question}, return_only_outputs=True)
-        st.write(response["output_text"], unsafe_allow_html=True)
-    else:
-        st.write("Sorry, I don't know the answer.")
-
-def get_conversation_chain():
-    prompt_template = """
-        Answer the question clear and precise. If not provided the context return the result as
-        "Sorry I don't know the answer", don't provide the wrong answer.
-        Context:\n {context}?\n
-        Question:\n{question}\n
-        Answer:
-    """
-    model = ChatGoogleGenerativeAI(model="gemini-pro", temperature=0.3)
-    prompt = PromptTemplate(template=prompt_template, input_variables=['context', 'question'])
-    chain = load_qa_chain(model, chain_type='stuff', prompt=prompt)
-    return chain
+        # Store embeddings in Qdrant
+        qdrant_client.insert_vector(vector=embeddings, metadata={"chunk": chunk})
 
 def main():
     st.set_page_config(page_title="Chat PDF", layout="wide")
-    st.header("Chat with PDF using Gemini")
+    st.header("Chat with PDF using Google's Generative AI")
 
     with st.sidebar:
         st.title("Menu")
@@ -84,7 +64,10 @@ def main():
 
     user_question = st.text_input("Ask a Question from the PDF Files")
     if user_question:
-        user_query_processing(user_question)
+        # Here, implement a function to process the user's question and fetch responses
+        # This function would involve interacting with the stored embeddings in Qdrant
+        # and possibly using generative AI for generating responses if needed.
+        pass
 
 if __name__ == "__main__":
     main()
